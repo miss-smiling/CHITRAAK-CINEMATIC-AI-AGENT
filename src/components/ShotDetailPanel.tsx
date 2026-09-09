@@ -1,7 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { StoryboardShot, Character, LocationAsset, PropAsset, ChecklistItems } from '../types';
-import { WaveformMeter } from './WaveformMeter';
-import { StatusChip } from './StatusChip';
+import React, { useState, useEffect } from "react";
+import {
+  StoryboardShot,
+  Character,
+  LocationAsset,
+  PropAsset,
+  ChecklistItems,
+} from "../types";
+import { WaveformMeter } from "./WaveformMeter";
+import { StatusChip } from "./StatusChip";
 import {
   X,
   CheckCircle2,
@@ -19,7 +25,7 @@ import {
   FileText,
   Sliders,
   Trash2,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface ShotDetailPanelProps {
   shot: StoryboardShot | null;
@@ -44,9 +50,11 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
   onAddNote,
   onDeleteShot,
 }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'consistency' | 'assets' | 'notes' | 'metadata'>('overview');
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "consistency" | "assets" | "notes" | "metadata"
+  >("overview");
   const [copiedPrompt, setCopiedPrompt] = useState(false);
-  const [newNoteText, setNewNoteText] = useState('');
+  const [newNoteText, setNewNoteText] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [reGenStatus, setReGenStatus] = useState<string | null>(null);
 
@@ -54,7 +62,7 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
   useEffect(() => {
     if (shot) {
       const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = originalOverflow;
       };
@@ -95,7 +103,7 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
     e.preventDefault();
     if (!newNoteText.trim()) return;
     onAddNote(shot.id, newNoteText.trim());
-    setNewNoteText('');
+    setNewNoteText("");
   };
 
   return (
@@ -119,15 +127,24 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
               <div className="flex items-center gap-2.5">
                 <h2 className="text-sm font-semibold text-[#EDEAE3] flex items-center gap-2">
                   {shot.title}
-                  <span className="text-xs text-[#8A8A8E] font-mono font-normal">({shot.sceneNumber})</span>
+                  <span className="text-xs text-[#8A8A8E] font-mono font-normal">
+                    ({shot.sceneNumber})
+                  </span>
                 </h2>
               </div>
-              <p className="text-[11px] text-[#8A8A8E]">AI Model: {shot.aiModel}</p>
+              <p className="text-[11px] text-[#8A8A8E]">
+                AI Model: {shot.aiModel}
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <StatusChip status={shot.status} score={shot.consistencyScore} size="sm" onClick={onCycleStatus} />
+            <StatusChip
+              status={shot.status}
+              score={shot.consistencyScore}
+              size="sm"
+              onClick={onCycleStatus}
+            />
             {onDeleteShot && (
               <button
                 onClick={() => setShowDeleteConfirm(true)}
@@ -157,8 +174,12 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
                     <Trash2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-[#EDEAE3]">Delete Shot {shot.shotNumber}?</h3>
-                    <p className="text-[11px] text-[#8A8A8E]">Permanent removal from sequence</p>
+                    <h3 className="text-sm font-semibold text-[#EDEAE3]">
+                      Delete Shot {shot.shotNumber}?
+                    </h3>
+                    <p className="text-[11px] text-[#8A8A8E]">
+                      Permanent removal from sequence
+                    </p>
                   </div>
                 </div>
                 <button
@@ -170,7 +191,11 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
               </div>
 
               <p className="text-xs text-[#EDEAE3] bg-[#1C1C1E] p-3 rounded border border-[#2E2E30] leading-relaxed">
-                Are you sure you want to remove shot <span className="font-semibold text-[#B8945F]">"{shot.title}"</span> ({shot.shotNumber}) from the storyboard sequence?
+                Are you sure you want to remove shot{" "}
+                <span className="font-semibold text-[#B8945F]">
+                  "{shot.title}"
+                </span>{" "}
+                ({shot.shotNumber}) from the storyboard sequence?
               </p>
 
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#2E2E30]">
@@ -204,17 +229,17 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
           {/* Main Image Viewport */}
           <div className="relative aspect-video w-full bg-[#1C1C1E] rounded overflow-hidden border border-[#2E2E30] group shrink-0">
             {shot.imageUrl ? (
-  <img
-    src={shot.imageUrl}
-    alt={shot.title}
-    className="w-full h-full object-cover"
-    referrerPolicy="no-referrer"
-  />
-) : (
-  <div className="w-full h-full flex items-center justify-center text-[#8A8A8E] text-xs font-mono">
-    No generated image
-  </div>
-)}
+              <img
+                src={shot.imageUrl}
+                alt={shot.title}
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-[#8A8A8E] text-xs font-mono">
+                No generated image
+              </div>
+            )}
 
             {/* Floating Identity Chips Overlay */}
             <div className="absolute bottom-3 left-3 flex items-center gap-1.5 z-10">
@@ -225,15 +250,23 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
                 >
                   <span
                     className="w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: char.color || '#B57878' }}
+                    style={{ backgroundColor: char.color || "#B57878" }}
                   />
-                  <span className="text-[#EDEAE3] font-medium">{char.name}</span>
+                  <span className="text-[#EDEAE3] font-medium">
+                    {char.name}
+                  </span>
                 </div>
               ))}
             </div>
 
             <div className="absolute bottom-3 right-3 z-10">
-              <StatusChip status={shot.status} score={shot.consistencyScore} showLabel size="md" onClick={onCycleStatus} />
+              <StatusChip
+                status={shot.status}
+                score={shot.consistencyScore}
+                showLabel
+                size="md"
+                onClick={onCycleStatus}
+              />
             </div>
           </div>
 
@@ -241,55 +274,57 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
           <div className="sticky top-0 z-10 flex items-center justify-between border border-[#2E2E30] rounded p-1 bg-[#1C1C1E] text-xs font-medium">
             <div className="flex items-center gap-1 overflow-x-auto py-0.5 w-full">
               <button
-                onClick={() => setActiveTab('overview')}
+                onClick={() => setActiveTab("overview")}
                 className={`px-3 py-1.5 rounded transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                  activeTab === 'overview'
-                    ? 'bg-[#2A2A2C] text-[#B8945F] border border-[#B8945F]/40 font-semibold'
-                    : 'text-[#8A8A8E] hover:text-[#EDEAE3]'
+                  activeTab === "overview"
+                    ? "bg-[#2A2A2C] text-[#B8945F] border border-[#B8945F]/40 font-semibold"
+                    : "text-[#8A8A8E] hover:text-[#EDEAE3]"
                 }`}
               >
                 <FileText className="w-3.5 h-3.5" /> Overview
               </button>
 
               <button
-                onClick={() => setActiveTab('consistency')}
+                onClick={() => setActiveTab("consistency")}
                 className={`px-3 py-1.5 rounded transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                  activeTab === 'consistency'
-                    ? 'bg-[#2A2A2C] text-[#B8945F] border border-[#B8945F]/40 font-semibold'
-                    : 'text-[#8A8A8E] hover:text-[#EDEAE3]'
+                  activeTab === "consistency"
+                    ? "bg-[#2A2A2C] text-[#B8945F] border border-[#B8945F]/40 font-semibold"
+                    : "text-[#8A8A8E] hover:text-[#EDEAE3]"
                 }`}
               >
-                <Sliders className="w-3.5 h-3.5" /> Consistency ({shot.consistencyScore}%)
+                <Sliders className="w-3.5 h-3.5" /> Consistency (
+                {shot.consistencyScore}%)
               </button>
 
               <button
-                onClick={() => setActiveTab('assets')}
+                onClick={() => setActiveTab("assets")}
                 className={`px-3 py-1.5 rounded transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                  activeTab === 'assets'
-                    ? 'bg-[#2A2A2C] text-[#B8945F] border border-[#B8945F]/40 font-semibold'
-                    : 'text-[#8A8A8E] hover:text-[#EDEAE3]'
+                  activeTab === "assets"
+                    ? "bg-[#2A2A2C] text-[#B8945F] border border-[#B8945F]/40 font-semibold"
+                    : "text-[#8A8A8E] hover:text-[#EDEAE3]"
                 }`}
               >
                 <Layers className="w-3.5 h-3.5" /> Assets
               </button>
 
               <button
-                onClick={() => setActiveTab('notes')}
+                onClick={() => setActiveTab("notes")}
                 className={`px-3 py-1.5 rounded transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                  activeTab === 'notes'
-                    ? 'bg-[#2A2A2C] text-[#B8945F] border border-[#B8945F]/40 font-semibold'
-                    : 'text-[#8A8A8E] hover:text-[#EDEAE3]'
+                  activeTab === "notes"
+                    ? "bg-[#2A2A2C] text-[#B8945F] border border-[#B8945F]/40 font-semibold"
+                    : "text-[#8A8A8E] hover:text-[#EDEAE3]"
                 }`}
               >
-                <MessageSquare className="w-3.5 h-3.5" /> Notes ({shot.notes.length})
+                <MessageSquare className="w-3.5 h-3.5" /> Notes (
+                {shot.notes.length})
               </button>
 
               <button
-                onClick={() => setActiveTab('metadata')}
+                onClick={() => setActiveTab("metadata")}
                 className={`px-3 py-1.5 rounded transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                  activeTab === 'metadata'
-                    ? 'bg-[#2A2A2C] text-[#B8945F] border border-[#B8945F]/40 font-semibold'
-                    : 'text-[#8A8A8E] hover:text-[#EDEAE3]'
+                  activeTab === "metadata"
+                    ? "bg-[#2A2A2C] text-[#B8945F] border border-[#B8945F]/40 font-semibold"
+                    : "text-[#8A8A8E] hover:text-[#EDEAE3]"
                 }`}
               >
                 <Camera className="w-3.5 h-3.5" /> Metadata
@@ -298,11 +333,15 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
           </div>
 
           {/* OVERVIEW TAB */}
-          {activeTab === 'overview' && (
+          {activeTab === "overview" && (
             <div className="space-y-3">
               <div className="bg-[#1C1C1E] p-3 rounded border border-[#2E2E30] space-y-1">
-                <h4 className="text-xs font-mono uppercase text-[#8A8A8E] font-semibold">Story Action</h4>
-                <p className="text-xs text-[#EDEAE3] leading-relaxed">{shot.description}</p>
+                <h4 className="text-xs font-mono uppercase text-[#8A8A8E] font-semibold">
+                  Story Action
+                </h4>
+                <p className="text-xs text-[#EDEAE3] leading-relaxed">
+                  {shot.description}
+                </p>
               </div>
 
               <div className="bg-[#1C1C1E] p-3 rounded border border-[#2E2E30] space-y-2">
@@ -314,8 +353,12 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
                     onClick={handleCopyPrompt}
                     className="flex items-center gap-1 text-[11px] font-mono text-[#8A8A8E] hover:text-[#EDEAE3] transition-colors cursor-pointer"
                   >
-                    {copiedPrompt ? <Check className="w-3.5 h-3.5 text-[#7A9E8C]" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedPrompt ? 'Copied' : 'Copy Prompt'}</span>
+                    {copiedPrompt ? (
+                      <Check className="w-3.5 h-3.5 text-[#7A9E8C]" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                    <span>{copiedPrompt ? "Copied" : "Copy Prompt"}</span>
                   </button>
                 </div>
                 <p className="text-xs text-[#EDEAE3] font-mono bg-[#232325] p-2.5 rounded border border-[#2E2E30] leading-relaxed">
@@ -324,7 +367,9 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
               </div>
 
               <div className="bg-[#1C1C1E] p-3 rounded border border-[#2E2E30] space-y-1">
-                <h4 className="text-xs font-mono uppercase text-[#8A8A8E] font-semibold">Negative Prompt</h4>
+                <h4 className="text-xs font-mono uppercase text-[#8A8A8E] font-semibold">
+                  Negative Prompt
+                </h4>
                 <p className="text-xs text-[#8A8A8E] font-mono bg-[#232325] p-2 rounded border border-[#2E2E30]">
                   {shot.negativePrompt}
                 </p>
@@ -332,36 +377,46 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-[#1C1C1E] p-3 rounded border border-[#2E2E30]">
-                  <span className="text-[10px] font-mono text-[#8A8A8E] uppercase">Location</span>
-                  <p className="text-xs font-semibold text-[#EDEAE3]">{shotLocation?.name || 'Unassigned'}</p>
+                  <span className="text-[10px] font-mono text-[#8A8A8E] uppercase">
+                    Location
+                  </span>
+                  <p className="text-xs font-semibold text-[#EDEAE3]">
+                    {shotLocation?.name || "Unassigned"}
+                  </p>
                 </div>
 
                 <div className="bg-[#1C1C1E] p-3 rounded border border-[#2E2E30]">
-                  <span className="text-[10px] font-mono text-[#8A8A8E] uppercase">Lighting Style</span>
-                  <p className="text-xs font-semibold text-[#EDEAE3]">{shot.lightingStyle}</p>
+                  <span className="text-[10px] font-mono text-[#8A8A8E] uppercase">
+                    Lighting Style
+                  </span>
+                  <p className="text-xs font-semibold text-[#EDEAE3]">
+                    {shot.lightingStyle}
+                  </p>
                 </div>
               </div>
             </div>
           )}
 
           {/* CONSISTENCY TAB */}
-          {activeTab === 'consistency' && (
+          {activeTab === "consistency" && (
             <div className="space-y-3">
               <WaveformMeter score={shot.consistencyScore} />
 
               <div className="bg-[#1C1C1E] p-3.5 rounded border border-[#2E2E30] space-y-3">
                 <h4 className="text-xs font-mono uppercase text-[#EDEAE3] font-semibold flex items-center justify-between">
                   <span>Continuity Audit Checklist</span>
-                  <span className="text-[10px] text-[#8A8A8E] font-normal">Click items to audit</span>
+                  <span className="text-[10px] text-[#8A8A8E] font-normal">
+                    Click items to audit
+                  </span>
                 </h4>
 
                 <div className="space-y-2">
                   <div
-                    onClick={() => handleToggleChecklist('facialFeatures')}
+                    onClick={() => handleToggleChecklist("facialFeatures")}
                     className={`flex items-start justify-between p-2.5 rounded border cursor-pointer transition-colors ${
                       shot.checklist.facialFeatures
-                        ? 'bg-[#7A9E8C]/10 border-[#7A9E8C] text-[#7A9E8C]'
-                        : 'bg-[#C9756B]/10 border-[#C9756B] text-[#C9756B]'
+                        ? "bg-[#7A9E8C]/10 border-[#7A9E8C] text-[#7A9E8C]"
+                        : "bg-[#C9756B]/10 border-[#C9756B] text-[#C9756B]"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
@@ -371,21 +426,27 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
                         <AlertCircle className="w-4 h-4 text-[#C9756B] shrink-0" />
                       )}
                       <div>
-                        <span className="text-xs font-semibold">Facial Features & Geometry</span>
+                        <span className="text-xs font-semibold">
+                          Facial Features & Geometry
+                        </span>
                         {shot.checklistFlags.facialFeatures && (
-                          <p className="text-[11px] text-[#C9756B] mt-0.5">{shot.checklistFlags.facialFeatures}</p>
+                          <p className="text-[11px] text-[#C9756B] mt-0.5">
+                            {shot.checklistFlags.facialFeatures}
+                          </p>
                         )}
                       </div>
                     </div>
-                    <span className="text-xs font-mono font-bold">{shot.checklist.facialFeatures ? '+20%' : '0%'}</span>
+                    <span className="text-xs font-mono font-bold">
+                      {shot.checklist.facialFeatures ? "+20%" : "0%"}
+                    </span>
                   </div>
 
                   <div
-                    onClick={() => handleToggleChecklist('hairStyle')}
+                    onClick={() => handleToggleChecklist("hairStyle")}
                     className={`flex items-start justify-between p-2.5 rounded border cursor-pointer transition-colors ${
                       shot.checklist.hairStyle
-                        ? 'bg-[#7A9E8C]/10 border-[#7A9E8C] text-[#7A9E8C]'
-                        : 'bg-[#C9756B]/10 border-[#C9756B] text-[#C9756B]'
+                        ? "bg-[#7A9E8C]/10 border-[#7A9E8C] text-[#7A9E8C]"
+                        : "bg-[#C9756B]/10 border-[#C9756B] text-[#C9756B]"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
@@ -395,21 +456,27 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
                         <AlertCircle className="w-4 h-4 text-[#C9756B] shrink-0" />
                       )}
                       <div>
-                        <span className="text-xs font-semibold">Hair Cut & Styling</span>
+                        <span className="text-xs font-semibold">
+                          Hair Cut & Styling
+                        </span>
                         {shot.checklistFlags.hairStyle && (
-                          <p className="text-[11px] text-[#C9756B] mt-0.5">{shot.checklistFlags.hairStyle}</p>
+                          <p className="text-[11px] text-[#C9756B] mt-0.5">
+                            {shot.checklistFlags.hairStyle}
+                          </p>
                         )}
                       </div>
                     </div>
-                    <span className="text-xs font-mono font-bold">{shot.checklist.hairStyle ? '+20%' : '0%'}</span>
+                    <span className="text-xs font-mono font-bold">
+                      {shot.checklist.hairStyle ? "+20%" : "0%"}
+                    </span>
                   </div>
 
                   <div
-                    onClick={() => handleToggleChecklist('costume')}
+                    onClick={() => handleToggleChecklist("costume")}
                     className={`flex items-start justify-between p-2.5 rounded border cursor-pointer transition-colors ${
                       shot.checklist.costume
-                        ? 'bg-[#7A9E8C]/10 border-[#7A9E8C] text-[#7A9E8C]'
-                        : 'bg-[#C9756B]/10 border-[#C9756B] text-[#C9756B]'
+                        ? "bg-[#7A9E8C]/10 border-[#7A9E8C] text-[#7A9E8C]"
+                        : "bg-[#C9756B]/10 border-[#C9756B] text-[#C9756B]"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
@@ -419,21 +486,29 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
                         <AlertCircle className="w-4 h-4 text-[#C9756B] shrink-0" />
                       )}
                       <div>
-                        <span className="text-xs font-semibold">Costume & Wardrobe</span>
+                        <span className="text-xs font-semibold">
+                          Costume & Wardrobe
+                        </span>
                         {shot.checklistFlags.costume && (
-                          <p className="text-[11px] text-[#C9756B] mt-0.5">{shot.checklistFlags.costume}</p>
+                          <p className="text-[11px] text-[#C9756B] mt-0.5">
+                            {shot.checklistFlags.costume}
+                          </p>
                         )}
                       </div>
                     </div>
-                    <span className="text-xs font-mono font-bold">{shot.checklist.costume ? '+20%' : '0%'}</span>
+                    <span className="text-xs font-mono font-bold">
+                      {shot.checklist.costume ? "+20%" : "0%"}
+                    </span>
                   </div>
 
                   <div
-                    onClick={() => handleToggleChecklist('colorPaletteAndLighting')}
+                    onClick={() =>
+                      handleToggleChecklist("colorPaletteAndLighting")
+                    }
                     className={`flex items-start justify-between p-2.5 rounded border cursor-pointer transition-colors ${
                       shot.checklist.colorPaletteAndLighting
-                        ? 'bg-[#7A9E8C]/10 border-[#7A9E8C] text-[#7A9E8C]'
-                        : 'bg-[#C9756B]/10 border-[#C9756B] text-[#C9756B]'
+                        ? "bg-[#7A9E8C]/10 border-[#7A9E8C] text-[#7A9E8C]"
+                        : "bg-[#C9756B]/10 border-[#C9756B] text-[#C9756B]"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
@@ -443,7 +518,9 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
                         <AlertCircle className="w-4 h-4 text-[#C9756B] shrink-0" />
                       )}
                       <div>
-                        <span className="text-xs font-semibold">Color Grade & Lighting Continuity</span>
+                        <span className="text-xs font-semibold">
+                          Color Grade & Lighting Continuity
+                        </span>
                         {shot.checklistFlags.colorPaletteAndLighting && (
                           <p className="text-[11px] text-[#C9756B] mt-0.5">
                             {shot.checklistFlags.colorPaletteAndLighting}
@@ -452,16 +529,16 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
                       </div>
                     </div>
                     <span className="text-xs font-mono font-bold">
-                      {shot.checklist.colorPaletteAndLighting ? '+20%' : '0%'}
+                      {shot.checklist.colorPaletteAndLighting ? "+20%" : "0%"}
                     </span>
                   </div>
 
                   <div
-                    onClick={() => handleToggleChecklist('propsAndAccessories')}
+                    onClick={() => handleToggleChecklist("propsAndAccessories")}
                     className={`flex items-start justify-between p-2.5 rounded border cursor-pointer transition-colors ${
                       shot.checklist.propsAndAccessories
-                        ? 'bg-[#7A9E8C]/10 border-[#7A9E8C] text-[#7A9E8C]'
-                        : 'bg-[#C9756B]/10 border-[#C9756B] text-[#C9756B]'
+                        ? "bg-[#7A9E8C]/10 border-[#7A9E8C] text-[#7A9E8C]"
+                        : "bg-[#C9756B]/10 border-[#C9756B] text-[#C9756B]"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
@@ -471,7 +548,9 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
                         <AlertCircle className="w-4 h-4 text-[#C9756B] shrink-0" />
                       )}
                       <div>
-                        <span className="text-xs font-semibold">Props & Accessories Integrity</span>
+                        <span className="text-xs font-semibold">
+                          Props & Accessories Integrity
+                        </span>
                         {shot.checklistFlags.propsAndAccessories && (
                           <p className="text-[11px] text-[#C9756B] mt-0.5">
                             {shot.checklistFlags.propsAndAccessories}
@@ -480,7 +559,7 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
                       </div>
                     </div>
                     <span className="text-xs font-mono font-bold">
-                      {shot.checklist.propsAndAccessories ? '+20%' : '0%'}
+                      {shot.checklist.propsAndAccessories ? "+20%" : "0%"}
                     </span>
                   </div>
                 </div>
@@ -489,15 +568,18 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
           )}
 
           {/* ASSETS TAB */}
-          {activeTab === 'assets' && (
+          {activeTab === "assets" && (
             <div className="space-y-3">
               <div className="bg-[#1C1C1E] p-3.5 rounded border border-[#2E2E30] space-y-2">
                 <h4 className="text-xs font-mono uppercase text-[#B8945F] font-semibold flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5" /> Tagged Characters ({shotCharacters.length})
+                  <User className="w-3.5 h-3.5" /> Tagged Characters (
+                  {shotCharacters.length})
                 </h4>
                 <div className="space-y-2">
                   {shotCharacters.length === 0 ? (
-                    <p className="text-xs text-[#8A8A8E] italic p-2">No characters linked to this shot.</p>
+                    <p className="text-xs text-[#8A8A8E] italic p-2">
+                      No characters linked to this shot.
+                    </p>
                   ) : (
                     shotCharacters.map((char) => (
                       <div
@@ -505,19 +587,28 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
                         className="flex items-center gap-3 p-2 rounded bg-[#232325] border border-[#2E2E30]"
                       >
                         <div className="w-10 h-10 rounded overflow-hidden border border-[#2E2E30] shrink-0">
-                          <img src={char.avatarUrl} alt={char.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          <img
+                            src={char.avatarUrl}
+                            alt={char.name}
+                            className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
+                          />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold text-[#EDEAE3]">{char.name}</span>
+                            <span className="text-xs font-semibold text-[#EDEAE3]">
+                              {char.name}
+                            </span>
                             <span
                               className="px-1.5 py-0.2 rounded text-[10px] font-mono font-medium text-[#EDEAE3]"
                               style={{ backgroundColor: `${char.color}30` }}
                             >
-                              {char.colorName || 'Muted Tag'}
+                              {char.colorName || "Muted Tag"}
                             </span>
                           </div>
-                          <p className="text-[11px] text-[#8A8A8E] truncate">{char.description}</p>
+                          <p className="text-[11px] text-[#8A8A8E] truncate">
+                            {char.description}
+                          </p>
                         </div>
                       </div>
                     ))
@@ -538,8 +629,12 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
                       referrerPolicy="no-referrer"
                     />
                     <div>
-                      <h5 className="text-xs font-semibold text-[#EDEAE3]">{shotLocation.name}</h5>
-                      <p className="text-[11px] text-[#8A8A8E]">{shotLocation.description}</p>
+                      <h5 className="text-xs font-semibold text-[#EDEAE3]">
+                        {shotLocation.name}
+                      </h5>
+                      <p className="text-[11px] text-[#8A8A8E]">
+                        {shotLocation.description}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -548,15 +643,28 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
               {shotProps.length > 0 && (
                 <div className="bg-[#1C1C1E] p-3.5 rounded border border-[#2E2E30] space-y-2">
                   <h4 className="text-xs font-mono uppercase text-[#C9A24B] font-semibold flex items-center gap-1.5">
-                    <Box className="w-3.5 h-3.5" /> Key Props ({shotProps.length})
+                    <Box className="w-3.5 h-3.5" /> Key Props (
+                    {shotProps.length})
                   </h4>
                   <div className="grid grid-cols-2 gap-2">
                     {shotProps.map((prop) => (
-                      <div key={prop.id} className="flex items-center gap-2 p-2 rounded bg-[#232325] border border-[#2E2E30]">
-                        <img src={prop.imageUrl} alt={prop.name} className="w-8 h-8 rounded object-cover" referrerPolicy="no-referrer" />
+                      <div
+                        key={prop.id}
+                        className="flex items-center gap-2 p-2 rounded bg-[#232325] border border-[#2E2E30]"
+                      >
+                        <img
+                          src={prop.imageUrl}
+                          alt={prop.name}
+                          className="w-8 h-8 rounded object-cover"
+                          referrerPolicy="no-referrer"
+                        />
                         <div className="min-w-0">
-                          <p className="text-xs font-semibold text-[#EDEAE3] truncate">{prop.name}</p>
-                          <p className="text-[10px] text-[#8A8A8E] truncate">{prop.category}</p>
+                          <p className="text-xs font-semibold text-[#EDEAE3] truncate">
+                            {prop.name}
+                          </p>
+                          <p className="text-[10px] text-[#8A8A8E] truncate">
+                            {prop.category}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -567,12 +675,15 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
           )}
 
           {/* NOTES TAB */}
-          {activeTab === 'notes' && (
+          {activeTab === "notes" && (
             <div className="space-y-3">
               <div className="space-y-2">
                 {shot.notes.length > 0 ? (
                   shot.notes.map((note) => (
-                    <div key={note.id} className="bg-[#1C1C1E] p-3 rounded border border-[#2E2E30] space-y-1.5">
+                    <div
+                      key={note.id}
+                      className="bg-[#1C1C1E] p-3 rounded border border-[#2E2E30] space-y-1.5"
+                    >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <img
@@ -581,22 +692,33 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
                             className="w-5 h-5 rounded-full object-cover border border-[#2E2E30]"
                             referrerPolicy="no-referrer"
                           />
-                          <span className="text-xs font-semibold text-[#EDEAE3]">{note.author}</span>
+                          <span className="text-xs font-semibold text-[#EDEAE3]">
+                            {note.author}
+                          </span>
                           <span className="text-[10px] font-mono text-[#8A8A8E] bg-[#2A2A2C] px-1.5 py-0.2 rounded">
                             {note.role}
                           </span>
                         </div>
-                        <span className="text-[10px] text-[#8A8A8E] font-mono">{note.timestamp}</span>
+                        <span className="text-[10px] text-[#8A8A8E] font-mono">
+                          {note.timestamp}
+                        </span>
                       </div>
-                      <p className="text-xs text-[#EDEAE3] pl-7 leading-relaxed">{note.text}</p>
+                      <p className="text-xs text-[#EDEAE3] pl-7 leading-relaxed">
+                        {note.text}
+                      </p>
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-6 text-xs text-[#8A8A8E] italic">No director or feedback notes yet.</div>
+                  <div className="text-center py-6 text-xs text-[#8A8A8E] italic">
+                    No director or feedback notes yet.
+                  </div>
                 )}
               </div>
 
-              <form onSubmit={handleNoteSubmit} className="flex gap-2 pt-2 border-t border-[#2E2E30]">
+              <form
+                onSubmit={handleNoteSubmit}
+                className="flex gap-2 pt-2 border-t border-[#2E2E30]"
+              >
                 <input
                   type="text"
                   placeholder="Add director feedback or note..."
@@ -616,33 +738,53 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
           )}
 
           {/* METADATA TAB */}
-          {activeTab === 'metadata' && (
+          {activeTab === "metadata" && (
             <div className="space-y-3 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-[#1C1C1E] p-3 rounded border border-[#2E2E30] space-y-0.5">
-                  <span className="text-[10px] font-mono text-[#8A8A8E]">Seed Number</span>
-                  <p className="font-mono font-bold text-[#B8945F]">{shot.seed}</p>
+                  <span className="text-[10px] font-mono text-[#8A8A8E]">
+                    Seed Number
+                  </span>
+                  <p className="font-mono font-bold text-[#B8945F]">
+                    {shot.seed}
+                  </p>
                 </div>
 
                 <div className="bg-[#1C1C1E] p-3 rounded border border-[#2E2E30] space-y-0.5">
-                  <span className="text-[10px] font-mono text-[#8A8A8E]">AI Model</span>
-                  <p className="font-mono font-bold text-[#EDEAE3]">{shot.aiModel}</p>
+                  <span className="text-[10px] font-mono text-[#8A8A8E]">
+                    AI Model
+                  </span>
+                  <p className="font-mono font-bold text-[#EDEAE3]">
+                    {shot.aiModel}
+                  </p>
                 </div>
 
                 <div className="bg-[#1C1C1E] p-3 rounded border border-[#2E2E30] space-y-0.5">
-                  <span className="text-[10px] font-mono text-[#8A8A8E]">Focal Length</span>
-                  <p className="font-mono font-bold text-[#EDEAE3]">{shot.cameraSettings.focalLength}</p>
+                  <span className="text-[10px] font-mono text-[#8A8A8E]">
+                    Focal Length
+                  </span>
+                  <p className="font-mono font-bold text-[#EDEAE3]">
+                    {shot.cameraSettings.focalLength}
+                  </p>
                 </div>
 
                 <div className="bg-[#1C1C1E] p-3 rounded border border-[#2E2E30] space-y-0.5">
-                  <span className="text-[10px] font-mono text-[#8A8A8E]">Camera Angle</span>
-                  <p className="font-mono font-bold text-[#EDEAE3]">{shot.cameraSettings.angle}</p>
+                  <span className="text-[10px] font-mono text-[#8A8A8E]">
+                    Camera Angle
+                  </span>
+                  <p className="font-mono font-bold text-[#EDEAE3]">
+                    {shot.cameraSettings.angle}
+                  </p>
                 </div>
               </div>
 
               <div className="bg-[#1C1C1E] p-3.5 rounded border border-[#2E2E30] space-y-1">
-                <span className="text-[10px] font-mono text-[#8A8A8E] uppercase">Camera Movement</span>
-                <p className="text-xs font-mono text-[#EDEAE3]">{shot.cameraSettings.movement}</p>
+                <span className="text-[10px] font-mono text-[#8A8A8E] uppercase">
+                  Camera Movement
+                </span>
+                <p className="text-xs font-mono text-[#EDEAE3]">
+                  {shot.cameraSettings.movement}
+                </p>
               </div>
 
               {reGenStatus && (
@@ -652,7 +794,11 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
               )}
 
               <button
-                onClick={() => setReGenStatus(`Submitted re-generation job for ${shot.shotNumber} with seed lock ${shot.seed}`)}
+                onClick={() =>
+                  setReGenStatus(
+                    `Submitted re-generation job for ${shot.shotNumber} with seed lock ${shot.seed}`,
+                  )
+                }
                 className="w-full py-2.5 rounded bg-[#2A2A2C] hover:bg-[#323235] text-[#EDEAE3] border border-[#2E2E30] font-semibold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <RefreshCw className="w-4 h-4 text-[#8A8A8E]" />
