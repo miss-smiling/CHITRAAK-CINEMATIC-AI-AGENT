@@ -1,7 +1,7 @@
 /**
  * Continuum - Visual Consistency Engine for AI Storyboards
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ViewMode,
   StoryboardShot,
@@ -27,12 +27,364 @@ import { SettingsView } from './components/SettingsView';
 import { NewShotModal } from './components/NewShotModal';
 import { AddAssetModal } from './components/AddAssetModal';
 
+type ApiShot = {
+  id: string;
+  scene_id: string;
+  shot_number: number;
+  description: string;
+  generated_image_url: string;
+  status: string;
+  shot_type?: string;
+  mood?: string;
+  action_beat?: string;
+  prompt?: string;
+  negative_prompt?: string;
+  seed?: number;
+  ai_model?: string;
+  aspect_ratio?: string;
+  focal_length?: string;
+  camera_angle?: string;
+  camera_movement?: string;
+  lighting_style?: string;
+  created_at?: string;
+};
+
+type ApiEntity = {
+  shot_id: string;
+  entity_id: string;
+  role: 'character' | 'location' | 'prop';
+  entity_type: 'character' | 'location' | 'prop';
+  name: string;
+  canonical_description: string;
+  reference_image_url: string;
+  current_state: string;
+  updated_at: string;
+};
+
+type ApiDrift = {
+  shot_id: string;
+  entity_id: string;
+  expected_state: string;
+  detected_state: string;
+  drift_score: number;
+  reason: string;
+  created_at: string;
+};
+
+function adaptApiShot(s: ApiShot): StoryboardShot {
+  const sceneNumber = s.scene_id.replace(/\D/g, '') || '1';
+  const shotNumber = String(s.shot_number).padStart(2, '0');
+
+  const status: ConsistencyStatus =
+    s.status === 'inconsistent' || s.status === 'needs_review'
+      ? s.status
+      : 'consistent';
+
+  return {
+    id: s.id,
+    shotNumber: `S${sceneNumber.padStart(2, '0')}-${shotNumber}`,
+    sceneNumber: `Scene ${sceneNumber}`,
+    title: `Shot ${shotNumber}`,
+    description: s.description ?? '',
+    imageUrl: s.generated_image_url ?? '',
+    characters: [],
+    locationId: '',
+    propIds: [],
+    consistencyScore: status === 'consistent' ? 100 : status === 'needs_review' ? 80 : 60,
+    status,
+    checklist: {
+      facialFeatures: true,
+      hairStyle: true,
+      costume: true,
+      colorPaletteAndLighting: true,
+      propsAndAccessories: true,
+    },
+    checklistFlags: {},
+    prompt: s.prompt ?? '',
+    negativePrompt: s.negative_prompt ?? '',
+    seed: Number(s.seed ?? 0),
+    aiModel: s.ai_model ?? '',
+    aspectRatio: s.aspect_ratio ?? '16:9',
+    cameraSettings: {
+      focalLength: s.focal_length ?? '',
+      angle: s.camera_angle ?? '',
+      movement: s.camera_movement ?? '',
+    },
+    lightingStyle: s.lighting_style ?? '',
+    notes: [],
+  };
+}
+
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('shots');
   const [shots, setShots] = useState<StoryboardShot[]>(INITIAL_SHOTS);
   const [characters, setCharacters] = useState<Character[]>(INITIAL_CHARACTERS);
   const [locations, setLocations] = useState<LocationAsset[]>(INITIAL_LOCATIONS);
   const [propsList, setPropsList] = useState<PropAsset[]>(INITIAL_PROPS);
+
+useEffect(() => {
+  let cancelled = false;
+
+  async function loadShotsAndEntities() {
+    try {
+      // 1. Load shots from ClickHouse through Express
+      const shotsResponse = await fetch('/api/shots');
+
+      if (!shotsResponse.ok) {
+        throw new Error(
+          `Shots API HTTP ${shotsResponse.status}`
+        );
+      }
+
+      const shotData: ApiShot[] =
+        await shotsResponse.json();
+
+      if (cancelled) return;
+
+      // 2. Load entities for every shot
+      const entityResults = await Promise.all(
+        shotData.map(async (shot) => {
+          const response = await fetch(
+            `/api/shots/${shot.id}/entities`
+          );
+
+          if (!response.ok) {
+            throw new Error(
+              `Entities API HTTP ${response.status} for ${shot.id}`
+            );
+          }
+
+          return (await response.json()) as ApiEntity[];
+        })
+      );
+
+      if (cancelled) return;
+
+      // 3. Load drift information for every shot
+      const driftResults = await Promise.all(
+        shotData.map(async (shot) => {
+          const response = await fetch(
+            `/api/shots/${shot.id}/drift`
+          );
+
+          if (!response.ok) {
+            throw new Error(
+              `Drift API HTTP ${response.status} for ${shot.id}`
+            );
+          }
+
+          return (await response.json()) as ApiDrift[];
+        })
+      );
+
+      if (cancelled) return;
+
+      console.log('Loaded drift data:', driftResults);
+
+      const allEntities =
+        entityResults.flat();
+
+      // 4. Remove duplicate entities
+      //    Example: Arjun may appear in multiple shots.
+      const uniqueEntities = Array.from(
+        new Map(
+          allEntities.map((entity) => [
+            entity.entity_id,
+            entity,
+          ])
+        ).values()
+      );
+
+      // 5. Convert ClickHouse characters → frontend Character
+      const apiCharacters: Character[] =
+        uniqueEntities
+          .filter(
+            (entity) =>
+              entity.entity_type ===
+              'character'
+          )
+          .map((entity) => ({
+            id: entity.entity_id,
+            name: entity.name,
+            role: 'Character',
+            color: '#f59e0b',
+            colorName: 'Amber',
+            avatarUrl:
+              entity.reference_image_url,
+            refImages:
+              entity.reference_image_url
+                ? [
+                    entity.reference_image_url,
+                  ]
+                : [],
+            description:
+              entity.canonical_description,
+            keyPromptTokens: [],
+            consistencyRate: 100,
+          }));
+
+      // 6. Convert ClickHouse locations → frontend LocationAsset
+      const apiLocations: LocationAsset[] =
+        uniqueEntities
+          .filter(
+            (entity) =>
+              entity.entity_type ===
+              'location'
+          )
+          .map((entity) => ({
+            id: entity.entity_id,
+            name: entity.name,
+            type: 'Location',
+            imageUrl:
+              entity.reference_image_url,
+            description:
+              entity.canonical_description,
+            lightingNotes:
+              entity.current_state,
+            keyPromptTokens: [],
+          }));
+
+      // 7. Convert ClickHouse props → frontend PropAsset
+      const apiProps: PropAsset[] =
+        uniqueEntities
+          .filter(
+            (entity) =>
+              entity.entity_type ===
+              'prop'
+          )
+          .map((entity) => ({
+            id: entity.entity_id,
+            name: entity.name,
+            category: 'Prop',
+            imageUrl:
+              entity.reference_image_url,
+            description:
+              entity.canonical_description,
+            associatedCharacterId:
+              undefined,
+          }));
+
+      // 8. Put real ClickHouse entities into React state
+      if (apiCharacters.length > 0) {
+        setCharacters(apiCharacters);
+      }
+
+      if (apiLocations.length > 0) {
+        setLocations(apiLocations);
+      }
+
+      if (apiProps.length > 0) {
+        setPropsList(apiProps);
+      }
+
+      // 9. Adapt shots
+      const adaptedShots =
+        shotData.map(adaptApiShot);
+
+      // 10. Connect entities to each shot
+      entityResults.forEach(
+        (entities, index) => {
+          const shot =
+            adaptedShots[index];
+
+          if (!shot) return;
+
+          shot.characters =
+            entities
+              .filter(
+                (entity) =>
+                  entity.entity_type ===
+                  'character'
+              )
+              .map(
+                (entity) =>
+                  entity.entity_id
+              );
+
+          const location =
+            entities.find(
+              (entity) =>
+                entity.entity_type ===
+                'location'
+            );
+
+          shot.locationId =
+            location?.entity_id ?? '';
+
+          shot.propIds =
+            entities
+              .filter(
+                (entity) =>
+                  entity.entity_type ===
+                  'prop'
+              )
+              .map(
+                (entity) =>
+                  entity.entity_id
+              );
+        }
+      );
+
+      // 11. Apply drift information to each shot
+driftResults.forEach((drifts, index) => {
+  const shot = adaptedShots[index];
+
+  if (!shot) return;
+
+  if (drifts.length === 0) {
+    return;
+  }
+
+  const maxDrift = Math.max(
+    ...drifts.map(
+      (drift) => Number(drift.drift_score) || 0
+    )
+  );
+
+  const consistencyScore = Math.round(
+    (1 - maxDrift) * 100
+  );
+
+  shot.consistencyScore = consistencyScore;
+
+  if (maxDrift >= 0.7) {
+    shot.status = 'inconsistent';
+  } else if (maxDrift >= 0.3) {
+    shot.status = 'needs_review';
+  } else {
+    shot.status = 'consistent';
+  }
+
+  const reasons = drifts
+    .map((drift) => drift.reason)
+    .filter(Boolean);
+
+  if (reasons.length > 0) {
+    shot.checklistFlags = {
+      ...shot.checklistFlags,
+      costume: reasons.join('; '),
+    };
+  }
+});
+
+      // 12. Put final shots into React state
+      setShots(adaptedShots);
+    } catch (error) {
+      console.warn(
+        'Using mock shots/assets because the backend is unavailable:',
+        error
+      );
+    }
+  }
+
+  loadShotsAndEntities();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
+
+
 
   // Filter & Highlight States
   const [hoveredCharacterId, setHoveredCharacterId] = useState<string | null>(null);
@@ -107,33 +459,25 @@ export default function App() {
   // Toggle checklist item and update shot score live
   const handleUpdateShotChecklist = (shotId: string, newChecklist: ChecklistItems) => {
     const countTrue = Object.values(newChecklist).filter(Boolean).length;
-    const newScore = countTrue * 20;
-
-    let newStatus: ConsistencyStatus = 'consistent';
-    if (newScore < 70) newStatus = 'inconsistent';
-    else if (newScore < 85) newStatus = 'needs_review';
+   const checklistScore = countTrue * 20;  
 
     setShots((prevShots) =>
       prevShots.map((s) => {
         if (s.id !== shotId) return s;
         return {
-          ...s,
-          checklist: newChecklist,
-          consistencyScore: newScore,
-          status: newStatus,
-        };
+  ...s,
+  checklist: newChecklist,
+};
       })
     );
 
     if (selectedShot && selectedShot.id === shotId) {
       setSelectedShot((prev) =>
         prev
-          ? {
-              ...prev,
-              checklist: newChecklist,
-              consistencyScore: newScore,
-              status: newStatus,
-            }
+          ?  {
+    ...prev,
+    checklist: newChecklist,
+  }
           : null
       );
     }
@@ -412,3 +756,4 @@ export default function App() {
     </div>
   );
 }
+

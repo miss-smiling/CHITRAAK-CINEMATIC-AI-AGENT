@@ -203,12 +203,18 @@ export const ShotDetailPanel: React.FC<ShotDetailPanelProps> = ({
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {/* Main Image Viewport */}
           <div className="relative aspect-video w-full bg-[#1C1C1E] rounded overflow-hidden border border-[#2E2E30] group shrink-0">
-            <img
-              src={shot.imageUrl}
-              alt={shot.title}
-              className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
-            />
+            {shot.imageUrl ? (
+  <img
+    src={shot.imageUrl}
+    alt={shot.title}
+    className="w-full h-full object-cover"
+    referrerPolicy="no-referrer"
+  />
+) : (
+  <div className="w-full h-full flex items-center justify-center text-[#8A8A8E] text-xs font-mono">
+    No generated image
+  </div>
+)}
 
             {/* Floating Identity Chips Overlay */}
             <div className="absolute bottom-3 left-3 flex items-center gap-1.5 z-10">
