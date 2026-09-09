@@ -59,7 +59,19 @@ export async function saveShot(
   sceneId: string,
   shotNumber: number,
   description: string,
-  generatedImageUrl: string = ""
+  generatedImageUrl: string = "",
+  shotType: string = "",
+  mood: string = "",
+  actionBeat: string = "",
+  prompt: string = "",
+  negativePrompt: string = "",
+  seed: number = 0,
+  aiModel: string = "",
+  aspectRatio: string = "16:9",
+  focalLength: string = "",
+  cameraAngle: string = "",
+  cameraMovement: string = "",
+  lightingStyle: string = ""
 ) {
   await clickhouse.insert({
     table: "shots",
@@ -71,6 +83,19 @@ export async function saveShot(
         description,
         generated_image_url: generatedImageUrl,
         status: "planned",
+
+        shot_type: shotType,
+        mood,
+        action_beat: actionBeat,
+        prompt,
+        negative_prompt: negativePrompt,
+        seed,
+        ai_model: aiModel,
+        aspect_ratio: aspectRatio,
+        focal_length: focalLength,
+        camera_angle: cameraAngle,
+        camera_movement: cameraMovement,
+        lighting_style: lightingStyle,
       },
     ],
     format: "JSONEachRow",
@@ -221,6 +246,38 @@ export async function findInvalidShotEntityLinks() {
         ON se.entity_id = e.id
       WHERE s.id IS NULL
          OR e.id IS NULL
+    `,
+    format: "JSONEachRow",
+  });
+
+  return await result.json();
+}
+
+export async function getAllShots() {
+  const result = await clickhouse.query({
+    query: `
+      SELECT
+        id,
+        scene_id,
+        shot_number,
+        description,
+        generated_image_url,
+        status,
+        shot_type,
+        mood,
+        action_beat,
+        prompt,
+        negative_prompt,
+        seed,
+        ai_model,
+        aspect_ratio,
+        focal_length,
+        camera_angle,
+        camera_movement,
+        lighting_style,
+        created_at
+      FROM shots
+      ORDER BY shot_number
     `,
     format: "JSONEachRow",
   });
